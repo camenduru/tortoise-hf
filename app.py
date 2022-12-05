@@ -34,6 +34,6 @@ gr.Interface(
     gr.Dropdown(presets, value="ultra_fast", label="Preset"),
   ],
   gr.Audio(),
-  description="TorToiSe - a multi-voice TTS system | <a href=\"https://github.com/neonbjb/tortoise-tts\">source</a>",
+  description="TorToiSe - a multi-voice TTS system by <a href="https://huggingface.co/jbetker">jbetker</a> | <a href=\"https://github.com/neonbjb/tortoise-tts\">src</a>\nNote: inference is very slow on CPU; for quicker inference times use the <a href="https://github.com/neonbjb/tortoise-tts#usage-guide">Colab notebook</a> linked in the source repository.",
   enable_queue=True
 ).launch()
