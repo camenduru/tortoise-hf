@@ -1,5 +1,5 @@
 ---
-title: TorToiSe
+title: Tortoise
 emoji: 🎧
 colorFrom: blue
 colorTo: pink
