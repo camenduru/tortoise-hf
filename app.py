@@ -3,8 +3,8 @@ import sys
 
 os.system("git clone https://github.com/neonbjb/tortoise-tts.git")
 sys.path.append("./tortoise-tts/")
-os.system("pip install -r requirements.txt")
-os.system("python setup.py install")
+os.system("pip install -r ./tortoise-tts/requirements.txt")
+os.system("python ./tortoise-tts/setup.py install")
 
 import torch
 import torchaudio
