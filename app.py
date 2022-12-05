@@ -29,7 +29,7 @@ gr.Interface(
   main, 
   [
     gr.Textbox(label="Text", placeholder="Text-to-speak goes here..."),
-    gr.Textbox(voices, value="deniro", label="Voice",
+    gr.Textbox(voices, value="deniro", label="Voice"),
     gr.Dropdown(["ultra_fast", "fast", "standard", "high_quality"], value="ultra_fast", label="Preset"),
   ],
   gr.Audio(),
