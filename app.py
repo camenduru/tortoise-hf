@@ -24,13 +24,14 @@ def main(text, voice, preset):
   return 24000, audio
 
 voices = ["mol", "tom", "applejack", "daniel", "myself", "weaver", "train_empire", "train_dotrice", "rainbow", "pat", "geralt", "halle", "train_kennard", "jlaw", "train_grace", "angie", "william", "tim_reynolds", "train_atkins", "train_dreams", "train_mouse", "freeman", "deniro", "lj", "train_lescault", "emma", "pat2", "snakes", "train_daws"]
+presets = ["ultra_fast", "fast", "standard", "high_quality"]
 
 gr.Interface(
   main, 
   [
     gr.Textbox(label="Text", placeholder="Text-to-speak goes here..."),
-    gr.Textbox(voices, value="deniro", label="Voice"),
-    gr.Dropdown(["ultra_fast", "fast", "standard", "high_quality"], value="ultra_fast", label="Preset"),
+    gr.Dropdown(voices, value="deniro", label="Voice"),
+    gr.Dropdown(presets, value="ultra_fast", label="Preset"),
   ],
   gr.Audio(),
   description="TorToiSe",
