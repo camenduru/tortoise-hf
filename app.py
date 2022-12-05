@@ -1,3 +1,4 @@
+import gradio as gr
 import os
 import sys
 
@@ -15,3 +16,23 @@ from tortoise.api import TextToSpeech
 from tortoise.utils.audio import load_audio, load_voice, load_voices
 
 tts = TextToSpeech()
+
+def main(text, voice, preset):
+  voice_samples, conditioning_latents = load_voice(voice)
+  gen = tts.tts_with_preset(text, voice_samples=voice_samples, conditioning_latents=conditioning_latents, preset=preset)
+  audio = gen.squeeze(0).cpu()
+  return 24000, audio
+
+voices = ["mol", "tom", "applejack", "daniel", "myself", "weaver", "train_empire", "train_dotrice", "rainbow", "pat", "geralt", "halle", "train_kennard", "jlaw", "train_grace", "angie", "william", "tim_reynolds", "train_atkins", "train_dreams", "train_mouse", "freeman", "deniro", "lj", "train_lescault", "emma", "pat2", "snakes", "train_daws"]
+
+gr.Interface(
+  main, 
+  [
+    gr.Textbox(label="Text", placeholder="Text-to-speak goes here..."),
+    gr.Textbox(voices, value="deniro", label="Voice",
+    gr.Dropdown(["ultra_fast", "fast", "standard", "high_quality"], value="ultra_fast", label="Preset"),
+  ],
+  gr.Audio(),
+  description="TorToiSe",
+  enable_queue=True
+).launch()
