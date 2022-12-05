@@ -1,9 +1,3 @@
-import os
-
-os.system("git clone https://github.com/jnordberg/tortoise-tts.git .")
-os.system("pip install -r requirements.txt")
-os.system("python setup.py install")
-
 import torch
 import torchaudio
 import torch.nn as nn
