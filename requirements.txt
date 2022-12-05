@@ -1,3 +1,2 @@
 torch
 torchaudio
-git+https://github.com/neonbjb/tortoise-tts@main#egg=tortoise-tts
