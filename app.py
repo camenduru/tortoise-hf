@@ -20,8 +20,8 @@ tts = TextToSpeech()
 def main(text, voice, preset):
   voice_samples, conditioning_latents = load_voice(voice)
   gen = tts.tts_with_preset(text, voice_samples=voice_samples, conditioning_latents=conditioning_latents, preset=preset)
-  audio = gen.squeeze(0).cpu()
-  return 24000, audio
+  torchaudio.save("generated.wav", gen.squeeze(0).cpu(), 24000)
+  return "generated.wav"
 
 voices = ["mol", "tom", "applejack", "daniel", "myself", "weaver", "train_empire", "train_dotrice", "rainbow", "pat", "geralt", "halle", "train_kennard", "jlaw", "train_grace", "angie", "william", "tim_reynolds", "train_atkins", "train_dreams", "train_mouse", "freeman", "deniro", "lj", "train_lescault", "emma", "pat2", "snakes", "train_daws"]
 presets = ["ultra_fast", "fast", "standard", "high_quality"]
@@ -34,6 +34,6 @@ gr.Interface(
     gr.Dropdown(presets, value="ultra_fast", label="Preset"),
   ],
   gr.Audio(),
-  description="TorToiSe",
+  description="TorToiSe - a multi-voice TTS system | <a href=\"https://github.com/neonbjb/tortoise-tts\">source</a>",
   enable_queue=True
 ).launch()
