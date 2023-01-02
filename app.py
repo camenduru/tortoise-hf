@@ -35,7 +35,15 @@ presets = ["ultra_fast", "fast", "standard", "high_quality"]
 preset_default = "fast"
 
 with gr.Blocks() as demo:
-    gr.Markdown("Tortoise text-to-speech")
+    gr.Markdown("""# TorToiSe
+Tortoise is a text-to-speech model developed by James Betker. It is capable of zero-shot voice cloning from a small set of voice samples. GitHub repo: [neonbjb/tortoise-tts](https://github.com/neonbjb/tortoise-tts).
+
+The Spaces implementation was created by [mdnestor](https://github.com/mdnestor). Currently in alpha; submit issues [here](https://huggingface.co/spaces/mdnestor/tortoise/discussions)!
+
+## Usage
+1. Select a voice - either by choosing a preset, uploading audio files, or recording via microphone - and click **Confirm voice**. Uploaded and recorded audio is chunked into 10 second segments. Follow the guidelines in the [voice customization guide](https://github.com/neonbjb/tortoise-tts#voice-customization-guide).
+2. Choose a model preset (ultra fast/fast/standard/high quality), type the text to speak, and click **Generate**.
+""")
 
     voice = gr.State([])
 
