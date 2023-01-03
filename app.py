@@ -37,7 +37,7 @@ The Spaces implementation was created by [mdnestor](https://github.com/mdnestor)
 
 ## Usage
 1. Select a model preset and type the text to speak.
-2. Load a voice - either by choosing a preset, uploading audio files, recording via microphone, or from URL. Select the option to split audio into chunks if the clips are much longer than 10 seconds each. Follow the guidelines in the [voice customization guide](https://github.com/neonbjb/tortoise-tts#voice-customization-guide).
+2. Load a voice - either by choosing a preset, uploading audio files, or recording via microphone. Select the option to split audio into chunks if the clips are much longer than 10 seconds each. Follow the guidelines in the [voice customization guide](https://github.com/neonbjb/tortoise-tts#voice-customization-guide).
 3. Click **Generate**, and wait - it's called *tortoise* for a reason!
 """
 
