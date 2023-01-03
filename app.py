@@ -125,12 +125,12 @@ with gr.Blocks() as demo:
       do_chunk3 = gr.Checkbox(label=do_chunk_label, value=do_chunk_default)
       btn3      = gr.Button("Generate")
 
-    with gr.Tab("From YouTube"):
-      inp4       = gr.Textbox(label="URL")
-      do_chunk4  = gr.Checkbox(label=do_chunk_label, value=do_chunk_default)
-      start_time = gr.Number(label="Start time (seconds)", precision=0)
-      end_time   = gr.Number(label="End time (seconds)", precision=0)
-      btn4       = gr.Button("Generate")
+#    with gr.Tab("From YouTube"):
+#      inp4       = gr.Textbox(label="URL")
+#      do_chunk4  = gr.Checkbox(label=do_chunk_label, value=do_chunk_default)
+#      start_time = gr.Number(label="Start time (seconds)", precision=0)
+#      end_time   = gr.Number(label="End time (seconds)", precision=0)
+#      btn4       = gr.Button("Generate")
 
     audio_out = gr.Audio()
 
@@ -149,10 +149,10 @@ with gr.Blocks() as demo:
       [inp3, do_chunk3, text, preset],
       [audio_out],
     )
-    btn4.click(
-      tts_from_url,
-      [inp4, start_time, end_time, do_chunk4, text, preset],
-      [audio_out],
-    )
+#    btn4.click(
+#      tts_from_url,
+#      [inp4, start_time, end_time, do_chunk4, text, preset],
+#      [audio_out],
+#    )
     
 demo.launch()
