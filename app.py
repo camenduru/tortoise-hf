@@ -1,9 +1,8 @@
 import os, sys
 import tempfile
 import gradio as gr
-import numpy
+import numpy as np
 from typing import Tuple, List
-
 
 # Setup and installation
 os.system("git clone https://github.com/neonbjb/tortoise-tts.git")
@@ -23,80 +22,98 @@ from tortoise.utils.audio import load_audio, load_voice
 # Download and instantiate model
 tts = TextToSpeech()
 
-voices = ["mol", "tom", "applejack", "daniel", "myself", "weaver", "train_empire", "train_dotrice", "rainbow", "pat", "geralt", "halle", "train_kennard", "jlaw", "train_grace", "angie", "william", "tim_reynolds", "train_atkins", "train_dreams", "train_mouse", "freeman", "deniro", "lj", "train_lescault", "emma", "pat2", "snakes", "train_daws"]
+voices = ["random", "mol", "tom", "applejack", "daniel", "myself", "weaver", "train_empire", "train_dotrice", "rainbow", "pat", "geralt", "halle", "train_kennard", "jlaw", "train_grace", "angie", "william", "tim_reynolds", "train_atkins", "train_dreams", "train_mouse", "freeman", "deniro", "lj", "train_lescault", "emma", "pat2", "snakes", "train_daws"]
 presets = ["ultra_fast", "fast", "standard", "high_quality"]
 preset_default = "fast"
 
-TORTOISE_SR     = 22050
+TORTOISE_SR_IN  = 22050
 TORTOISE_SR_OUT = 24000
 
 
 # Helper functions
-def split_into_chunks(t: torch.Tensor, sample_rate: int, chunk_duration_sec: int) -> List[torch.Tensor]:
+def split_into_chunks(t: torch.Tensor, sample_rate, chunk_duration_sec) -> List[torch.Tensor]:
   duration = t.shape[1] / sample_rate
   num_chunks = 1 + int(duration/chunk_duration_sec)
   chunks = [t[:,(sample_rate*chunk_duration_sec*i):(sample_rate*chunk_duration_sec*(i+1))] for i in range(num_chunks)]
   return chunks
 
-def load_preset_voice(voice: str) -> List[torch.Tensor]:
-  samples, _ = load_voice(voice)
-  return samples
+def generate_from_preset(voice: str, text, model_preset):
+  voice_samples, _ = load_voice(voice)
+  return tts_main(voice_samples, text, model_preset)
 
-def load_voice_from_files(files: List[tempfile._TemporaryFileWrapper]) -> List[torch.Tensor]:
-  return [load_audio(f.name, TORTOISE_SR) for f in files]
+def generate_from_files(files: List[tempfile._TemporaryFileWrapper], text, model_preset):
+  voice_samples = [load_audio(f.name, TORTOISE_SR_IN) for f in files]
+  return tts_main(voice_samples, text, model_preset)
 
-def load_voice_from_recording(recording: Tuple[int, numpy.ndarray]) -> List[torch.Tensor]:
+def generate_from_recording(recording, text, model_preset):
   sample_rate, audio = recording
-  with tempfile.NamedTemporaryFile(suffix=".wav") as temp:
-    torchaudio.save(temp.name, torch.Tensor(a), sample_rate)
-    t = load_audio(temp.name, TORTOISE_SR)
-  chunks = split_into_chunks(t, TORTOISE_SR, chunk_duration_sec=10)
-  return chunks
+  
+  # convert to float tensor and normalize - see: https://github.com/neonbjb/tortoise-tts/blob/main/tortoise/utils/audio.py#L16
+  norm_fix = 1
+  if audio.dtype == np.int32:
+    norm_fix = 2**31
+  elif audio.dtype == np.int16:
+    norm_fix = 2**15
+  t = torch.FloatTensor(audio.T) / norm_fix
 
+  # convert to mono
+  if len(t.shape) > 1:
+    t = torch.mean(t, axis=0).unsqueeze(0)
+
+  # resample to 22050 hz
+  t = torchaudio.transforms.Resample(sample_rate, TORTOISE_SR_IN)(t)
+  
+  voice_samples = split_into_chunks(t, TORTOISE_SR_IN, 10)
+  return tts_main(voice_samples, text, model_preset)
+
+def tts_main(voice_samples, text, model_preset):
+  gen = tts.tts_with_preset(
+    text,
+    voice_samples=voice_samples,
+    conditioning_latents=None,
+    preset=model_preset
+  )
+  torchaudio.save("generated.wav", gen.squeeze(0).cpu(), TORTOISE_SR_OUT)
+  return "generated.wav"
+    
 
 with gr.Blocks() as demo:
     gr.Markdown("""# TorToiSe
 Tortoise is a text-to-speech model developed by James Betker. It is capable of zero-shot voice cloning from a small set of voice samples. GitHub repo: [neonbjb/tortoise-tts](https://github.com/neonbjb/tortoise-tts).
 
-The Spaces implementation was created by [mdnestor](https://github.com/mdnestor).
+The Spaces implementation was created by [mdnestor](https://github.com/mdnestor). Currently in alpha; submit issues [here](https://huggingface.co/spaces/mdnestor/tortoise/discussions)!
 
 ## Usage
-1. Select a voice - either by choosing a preset, uploading audio files, or recording via microphone - and click **Confirm voice**. Uploaded and recorded audio is chunked into 10 second segments. Follow the guidelines in the [voice customization guide](https://github.com/neonbjb/tortoise-tts#voice-customization-guide).
+1. Select a voice - either by choosing a preset, uploading audio files, or recording via microphone. Recorded audio is chunked into 10 second segments. Follow the guidelines in the [voice customization guide](https://github.com/neonbjb/tortoise-tts#voice-customization-guide).
 2. Choose a model preset (ultra fast/fast/standard/high quality), type the text to speak, and click **Generate**.
 """)
 
-    voice_samples = gr.State([])
-
     with gr.Row():
+      # From preset voice
       with gr.Tab("Choose preset voice"):
-        audio1 = gr.Dropdown(voices)
-        btn1 = gr.Button("Confirm voice")
-        btn1.click(load_preset_voice, [audio1], [voice_samples])
-
+        inp1 = gr.Dropdown(voices, value="random", label="Preset voice")
+        preset = gr.Dropdown(presets, value=preset_default, label="Model preset")
+        text = gr.Textbox(label="Text to speak", value="Hello, world!")
+        btn1 = gr.Button("Generate")
+        audio_out = gr.Audio()
+        btn1.click(generate_from_preset, inputs=[inp1, text, preset], outputs=audio_out)
+      
+      # From file upload
       with gr.Tab("Upload audio"):
-        audio2 = gr.File(file_count="multiple")
-        btn2 = gr.Button("Confirm voice")
-        btn2.click(load_voice_from_files, [audio2], [voice_samples])
-
+        inp2 = gr.File(file_count="multiple")
+        preset = gr.Dropdown(presets, value=preset_default, label="Model preset")
+        text = gr.Textbox(label="Text to speak", value="Hello, world!")
+        btn2 = gr.Button("Generate")
+        audio_out = gr.Audio()
+        btn2.click(generate_from_files, inputs=[inp2, text, preset], outputs=audio_out)
+      
+      # From microphone
       with gr.Tab("Record audio"):
-        audio3 = gr.Audio(source="microphone")
-        btn3 = gr.Button("Confirm voice")
-        btn3.click(load_voice_from_recording, [audio3], [voice_samples])
-
-    def main(voice_samples, text, preset):
-      gen = tts.tts_with_preset(
-        text,
-        voice_samples=voice_samples,
-        conditioning_latents=None,
-        preset=preset
-      )
-      torchaudio.save("generated.wav", gen.squeeze(0).cpu(), TORTOISE_SR_OUT)
-      return "generated.wav"
-
-    preset = gr.Dropdown(presets, value=preset_default, label="Model preset")
-    text = gr.Textbox(label="Text to speak")
-    btn = gr.Button("Generate")
-    audio_out = gr.Audio()
-    btn.click(main, [voice_samples, text, preset], audio_out)
-
+        inp3 = gr.Audio(source="microphone")
+        preset = gr.Dropdown(presets, value=preset_default, label="Model preset")
+        text = gr.Textbox(label="Text to speak", value="Hello, world!")
+        btn3 = gr.Button("Generate")
+        audio_out = gr.Audio()
+        btn3.click(generate_from_recording, inputs=[inp3, text, preset], outputs=audio_out)
+          
 demo.launch()
