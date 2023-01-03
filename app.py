@@ -112,7 +112,7 @@ with gr.Blocks() as demo:
     do_chunk_default = True
 
     with gr.Tab("Choose preset voice"):
-      inp1      = gr.Dropdown(voices, value=DEFAULT_VOICE, label="Preset voice")
+      inp1      = gr.Dropdown(VOICES, value=DEFAULT_VOICE, label="Preset voice")
       btn1      = gr.Button("Generate")
 
     with gr.Tab("Upload audio"):
