@@ -1,6 +1,6 @@
 ---
-title: Tortoise
-emoji: 🎧
+title: Tortoise TTS
+emoji: 🐢
 colorFrom: blue
 colorTo: pink
 sdk: gradio
