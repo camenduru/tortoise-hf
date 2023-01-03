@@ -1,3 +1,4 @@
 torch
 torchaudio
 numpy==1.23.5
+yt-dlp
