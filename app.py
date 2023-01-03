@@ -1,7 +1,7 @@
-import gradio as gr
-import os
-import sys
+import os, sys
 import tempfile
+import gradio as gr
+import numpy
 from typing import Tuple, List
 
 
@@ -17,7 +17,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from tortoise.api import TextToSpeech
-from tortoise.utils.audio import load_audio, load_voice, load_voices
+from tortoise.utils.audio import load_audio, load_voice
 
 
 # Download and instantiate model
