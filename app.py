@@ -6,6 +6,8 @@ from typing import Tuple, List
 
 # Setup and installation
 os.system("git clone https://github.com/neonbjb/tortoise-tts.git")
+os.system("cd tortoise-tts")
+os.system("git reset --hard 8c0b3855bfb5312adf2b000b52cf5cfa2830c310")
 sys.path.append("./tortoise-tts/")
 os.system("pip install -r ./tortoise-tts/requirements.txt")
 os.system("python ./tortoise-tts/setup.py install")
